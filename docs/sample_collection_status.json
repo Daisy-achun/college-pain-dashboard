@@ -1,0 +1,36 @@
+{
+  "created_at": "2026-10-08",
+  "target": {
+    "zhihu": {"min": 100, "max": 300},
+    "xiaohongshu": {"min": 100, "max": 300},
+    "kuaishou": {"min": 100, "max": 300}
+  },
+  "status": {
+    "zhihu": {
+      "candidate_questions": 5,
+      "public_page_probe_rows": 1,
+      "full_content_rows": 0,
+      "blocked_by": "public page exposes only limited visible content; batch answer API requires authorized login or export",
+      "next_step": "run tool/crawlers/zhihu.py only after account owner authorizes the browser session"
+    },
+    "xiaohongshu": {
+      "candidate_urls": 0,
+      "full_content_rows": 0,
+      "blocked_by": "public search shell loads, then shows a login modal before search results; no unauthenticated public API",
+      "next_step": "use platform-approved export/API or provide a public URL list"
+    },
+    "kuaishou": {
+      "candidate_urls": 0,
+      "full_content_rows": 0,
+      "blocked_by": "public search shell loads but exposes no video links/content and prompts for login",
+      "next_step": "use platform-approved export/API or provide a public URL list"
+    }
+  },
+  "policy": {
+    "public_only": true,
+    "read_only": true,
+    "no_login_bypass": true,
+    "no_captcha_bypass": true,
+    "no_fingerprint_or_proxy_evasion": true
+  }
+}

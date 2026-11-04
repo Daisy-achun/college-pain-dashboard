@@ -1,0 +1,31 @@
+{
+  "input": "贴吧标题_2026-10-08.xlsx",
+  "input_rows": 3781,
+  "kept_rows": 2245,
+  "rejected_rows": 1536,
+  "unique_urls": 2245,
+  "reply_count_nonzero": 1644,
+  "reasons": {
+    "pinned": 18,
+    "too_short": 1204,
+    "zero_reply_short": 288,
+    "notice_or_promo": 26
+  },
+  "kept_by_bar": {
+    "转专业吧": 139,
+    "专升本吧": 184,
+    "考研吧": 228,
+    "挂科吧": 137,
+    "大学吧": 194,
+    "大一吧": 160,
+    "专科吧": 188,
+    "二本吧": 220,
+    "双非吧": 215,
+    "考公吧": 178,
+    "保研吧": 162,
+    "大学生心理吧": 67,
+    "毕业生吧": 173
+  },
+  "evidence_level": "list_title_or_snippet",
+  "created_at": "2026-10-08T19:10:25"
+}

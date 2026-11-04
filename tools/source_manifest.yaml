@@ -1,0 +1,90 @@
+# 大学生吐槽采集来源清单
+#
+# 这份清单是接入新来源前的边界和运行状态记录，不是绕过站点限制的配置。
+# 采集范围固定为无需登录即可公开访问的页面/API；遇到认证、验证码、风控
+# 或限流，采集器必须停止当前来源并保留已落盘数据。
+
+manifest_version: 1
+updated_at: "2026-10-08"
+collection_policy:
+  public_only: true
+  read_only: true
+  allowed_methods: [GET]
+  authentication:
+    use_authenticated_content: false
+    do_not_bypass_login: true
+    do_not_bypass_captcha: true
+  stop_on:
+    http_status: [401, 403, 412, 429]
+    response_markers: [验证码, 安全验证, 人机验证, captcha, 风控]
+  provenance_required: [平台, 来源, 原链接, 抓取时间]
+  output_schema: output_schema.json
+
+# status 是当前出口环境的观测结果，不代表站点永久可用性。
+sources:
+  - id: bilibili
+    name: B站
+    enabled_by_default: true
+    public_only_eligible: true
+    access:
+      mode: public_api
+      auth_required: false
+      endpoints: ["公开搜索接口", "公开视频信息接口", "公开评论接口"]
+    blockers:
+      - code: http_412
+        status: blocked_on_current_probe
+        detail: "站内搜索接口返回 HTTP 412；触发通用熔断，不重试、不换手段。"
+    notes: "仅采集公开视频评论；不采集账号私密内容。"
+
+  - id: douban
+    name: 豆瓣小组
+    enabled_by_default: true
+    public_only_eligible: true
+    access:
+      mode: public_html
+      auth_required: false
+      endpoints: ["公开小组主页", "公开讨论列表", "公开帖子页"]
+    blockers:
+      - code: login_required
+        status: observed
+        detail: "小组发现/搜索页可能返回 error 008；配置必须使用已知数字小组 ID。"
+      - code: http_403
+        status: blocked_on_current_probe
+        detail: "帖子页后续请求可能返回 403 或超时，命中即停止该来源。"
+    notes: "小组名不能自动解析为 ID；不通过登录或验证码取得 ID。"
+
+  - id: tieba
+    name: 百度贴吧
+    enabled_by_default: true
+    public_only_eligible: true
+    access:
+      mode: public_html_wap
+      auth_required: false
+      default_transport: wap
+      endpoints: ["/mo/q/fl?kw=<吧名>&pn=<页码>", "/mo/q/m?kz=<帖子ID>"]
+      pc_transport_opt_in: false
+    blockers:
+      - code: pc_soft_block
+        status: observed
+        detail: "PC f?kw=... 列表页常返回安全验证空壳；PC 仅在配置 wap: false 时显式尝试。"
+      - code: http_403_412_429_or_captcha
+        status: stop_immediately
+        detail: "HTTP 403/412/429 或安全验证页面立即熔断，不自动切换入口。"
+    notes: "默认走公开 WAP 轻量端；只保存楼主公开正文和页面元数据。"
+
+  - id: zhihu
+    name: 知乎
+    enabled_by_default: false
+    public_only_eligible: false
+    access:
+      mode: authenticated_cookie
+      auth_required: true
+      endpoints: ["问题页", "回答接口"]
+    blockers:
+      - code: auth_required
+        status: disabled_for_public_only
+        detail: "当前实现需要用户提供登录 cookie；公共采集模式下保持关闭。"
+      - code: http_403_412_429_or_captcha
+        status: stop_immediately
+        detail: "不尝试绕过登录、验证码、风控或限流。"
+    notes: "如研究范围改为经授权的登录态采集，应单独记录授权和数据范围。"

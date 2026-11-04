@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>大学生痛点与需求研究（wowland）</title>
+<!-- 飞书/妙搭发布 URL 常无尾部 /，相对路径会解析到 /app/ 而非 /app/app_xxx/ -->
+<script>
+(function () {
+  try {
+    var path = location.pathname || '';
+    if (path && path.indexOf('/app/') !== -1 && !/\/$/.test(path)) {
+      var b = document.createElement('base');
+      b.href = path + '/';
+      document.head.insertBefore(b, document.head.firstChild);
+    }
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="./css/app.css" />
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="title">大学生痛点与需求研究</div>
+  </div>
+  <nav id="tabs" aria-label="报告分区">
+    <button data-tab="overview" class="active">概览</button>
+    <button data-tab="framework">大学生场景分析</button>
+    <button data-tab="themes">痛点主题</button>
+    <button data-tab="heat">年级 × 场景</button>
+    <button data-tab="types">学生类型</button>
+    <button data-tab="gap">Gap 分析</button>
+    <button data-tab="sit">此刻的我</button>
+    <button data-tab="report">完整报告</button>
+    <button data-tab="explorer">原帖浏览</button>
+  </nav>
+  <div class="gcount" id="gCount" title="随全局筛选实时更新"></div>
+</header>
+<div class="gbar" id="gbar">
+  <span class="glabel">全局筛选</span>
+  <span id="gSources" class="chips"></span>
+  <select id="gStage"></select>
+  <select id="gType"></select>
+  <label id="gTitlesWrap" class="toggle tbtog" title="百度贴吧帖子标题：只有标题和链接、没有正文和日期；规则过滤后逐条人工通读；默认不计入主口径"><input type="checkbox" id="gTitles" checked> 含百度贴吧标题（主口径·仅标题）<button type="button" class="infob" id="gTitlesInfo" title="百度贴吧标题补充是什么、怎么筛的">说明</button></label>
+  <label class="toggle v2tog" title="V2EX 经第三方搜索站 sov2ex 公开搜索接口获取；偏计算机、偏旧帖；默认不计入主口径"><input type="checkbox" id="gV2" checked> 含 V2EX（主口径）<button type="button" class="infob" id="gV2Info" title="V2EX 补充材料是什么、怎么筛的">说明</button></label>
+  <button class="ghost" id="gReset">重置</button>
+</div>
+<main>
+  <div id="bootStatus" style="padding:28px 20px;color:#64748b;font:14px/1.6 system-ui,sans-serif">正在加载数据（约数 MB），请稍候…</div>
+  <section id="tab-overview" class="tab active"></section>
+  <section id="tab-framework" class="tab"></section>
+  <section id="tab-themes" class="tab"></section>
+  <section id="tab-heat" class="tab"></section>
+  <section id="tab-types" class="tab"></section>
+  <section id="tab-gap" class="tab"></section>
+  <section id="tab-sit" class="tab"></section>
+  <section id="tab-report" class="tab"></section>
+  <section id="tab-explorer" class="tab"></section>
+</main>
+<div id="toast"></div>
+<script src="./vendor/echarts.min.js"></script>
+<script src="./vendor/echarts-wordcloud.min.js"></script>
+<script src="./vendor/marked.min.js"></script>
+<script src="./data/dashboard-data.js"></script>
+<script src="./data/framework-analysis.js"></script>
+<script src="./data/sit-matrix.js"></script>
+<!-- 经典脚本打包：妙搭环境不跑 ES Module -->
+<script src="./js/app.bundle.js"></script>
+</body>
+</html>

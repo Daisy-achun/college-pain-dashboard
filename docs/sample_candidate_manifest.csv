@@ -1,0 +1,8 @@
+platform,scope_type,title,url,id,visibility,content_status,collection_route,notes
+zhihu,question,作为大学生，最痛苦的是什么？,https://www.zhihu.com/question/14078521029,14078521029,public_indexed,candidate_only,authorized_question_api,"搜索引擎可发现；回答正文需要知乎合法登录态或平台允许的导出"
+zhihu,question,大学生为什么痛苦？,https://www.zhihu.com/question/307070973,307070973,public_indexed,candidate_only,authorized_question_api,"搜索引擎可发现；回答正文需要知乎合法登录态或平台允许的导出"
+zhihu,question,你在大学经历哪些后悔的事？,https://www.zhihu.com/question/22716593,22716593,public_indexed,candidate_only,authorized_question_api,"搜索引擎可发现；适合作为低年级/大学经历问题"
+zhihu,question,大学期间，你最后悔的事情是什么？,https://www.zhihu.com/question/275690685,275690685,public_indexed,candidate_only,authorized_question_api,"搜索引擎可发现；适合作为后悔/选择问题"
+zhihu,question,大学真的很痛苦 怎么办？,https://www.zhihu.com/question/59447339,59447339,public_indexed,candidate_only,authorized_question_api,"搜索摘要含孤独、学业压力等痛点；正文需要合法登录态或导出"
+xiaohongshu,public_note,,,,unknown,no_candidate_found,public_url_or_official_export,"本轮搜索未得到稳定可复用的公开笔记 URL；不把搜索摘要当正文"
+kuaishou,public_video,,,,unknown,no_candidate_found,public_url_or_official_export,"本轮搜索未得到稳定可复用的公开视频 URL；不把搜索摘要当正文"

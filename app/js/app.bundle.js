@@ -483,12 +483,36 @@ function renderOvThemes(box){
   box.querySelectorAll('[data-th]').forEach(r => r.onclick = () => { themeView = 'theme'; selTheme = r.dataset.th; dirty.add('themes'); showTab('themes'); });
 }
 function renderOvSit(box){
-  const S = D.situations;
-  box.innerHTML = `<div class="card"><h3>${S.length} 个"此刻的我"情境</h3><p class="hint">名称和"触发时刻"取自报告 6.2 节；"当前筛选"= 对应主题在全局筛选下的帖子数（情境之间有重叠）。点击任一行 → 跳到"此刻的我"页对应情境</p>
-    <div class="ovlist">${S.map(s => { const n = GP.filter(p => p.th && s.themes.includes(p.th)).length; return `<div class="ovrow sit" data-sid="${s.id}">
-      <div class="nm"><b>${esc(s.id)}</b> ${esc(s.name)} <span class="small">· 当前筛选 ${fmt(n)} 条</span></div>
-      <div class="ds small">${esc(s.trigger)}</div></div>`; }).join('')}</div></div>`;
-  box.querySelectorAll('[data-sid]').forEach(r => r.onclick = () => { const id = r.dataset.sid; showTab('sit'); const c = document.getElementById('sit-' + id); if (c) { window.scrollTo({top: c.getBoundingClientRect().top + window.scrollY - 120}); c.classList.add('flash'); setTimeout(() => c.classList.remove('flash'), 2200); } });
+  const M = globalThis.__SIT_MATRIX__;
+  if (!M || !(M.situations || []).length) {
+    box.innerHTML = `<div class="card"><h3>「此刻的我」</h3><p class="hint">未加载成长全景矩阵</p></div>`;
+    return;
+  }
+  const S = M.situations;
+  box.innerHTML = `<div class="card"><h3>${S.length} 个「此刻的我」情境</h3>
+    <p class="hint">按 6 成长主题 × 7 阶段重划（卡片格式同前）。点击一行 → 打开对应情境。</p>
+    <div class="ovlist">${S.slice(0, 12).map(s => {
+      const n = GP.filter(p => p.th && (s.themes || []).includes(p.th)).length;
+      return `<div class="ovrow sit" data-sid="${s.id}">
+        <div class="nm"><b>${esc(s.id)}</b> ${esc(s.name)} <span class="small">· ${esc(s.themeName)} / ${esc((s.stageName || '').replace(/^\d+\s*/, ''))} · 筛选 ${fmt(n)}</span></div>
+        <div class="ds small">${esc(s.trigger)}</div>
+      </div>`;
+    }).join('')}${S.length > 12 ? `<p class="small">…共 ${S.length} 个，完整列表见「此刻的我」</p>` : ''}</div></div>`;
+  box.querySelectorAll('[data-sid]').forEach(r => {
+    r.onclick = () => {
+      const s = S.find(x => x.id === r.dataset.sid);
+      if (s) { SIT.theme = s.themeId; SIT.stage = s.stageId; }
+      showTab('sit');
+      requestAnimationFrame(() => {
+        const c = document.getElementById('sit-' + r.dataset.sid);
+        if (c) {
+          window.scrollTo({ top: c.getBoundingClientRect().top + window.scrollY - 120 });
+          c.classList.add('flash');
+          setTimeout(() => c.classList.remove('flash'), 2200);
+        }
+      });
+    };
+  });
 }
 
 
@@ -936,24 +960,100 @@ function renderTypes(){
 
 
 
-// ---------------- Situations ----------------
+// ---------------- Situations（旧卡片格式 × 矩阵维度重划） ----------------
+let SIT = { theme: null, stage: null };
+
 function renderSit(){
   const el = $('#tab-sit');
-  const S = D.situations;
-  el.innerHTML = `<div class="card md">${md(D.sections.sit61)}</div>
-  <h3 style="margin:18px 0 8px">${S.length} 个"此刻的我"情境（来自报告 6.2 节）</h3>
-  <p class="small" style="margin-top:-4px">条数/估计有效/情绪≥2 来自报告（= 对应主题清洗后条数，主口径；情境之间有重叠）。"当前筛选"为对应主题在全局筛选下的帖子数（不含报告里的年级/gap 限定）。点击主题标签 → 在原帖浏览中查看。</p>
-  <div class="scards">${S.map(s=>{ const n = GP.filter(p=>p.th && s.themes.includes(p.th)).length; return `<div class="scard" id="sit-${s.id}">
-    <h4><span class="sid">${s.id}</span>${esc(s.name)}</h4>
-    <div class="nums"><span>条数 <b>${s.n??'—'}</b></span>${s.est!=null?`<span>估计有效 <b>≈${s.est}</b></span>`:''}<span>情绪≥2 <b>${esc(s.emo2)}</b></span><span>当前筛选 <b>${fmt(n)}</b></span></div>
-    <div class="row"><b>触发时刻：</b>${esc(s.trigger)}</div>
-    <div class="row"><b>他/她需要什么：</b>${esc(s.needs)}</div>
-    <div class="row"><b>对应主题：</b>${s.themes.map(c=>`<span class="badge th" data-sx="${c}" title="${esc(TH[c].full)}">${esc(tlabel(c))}</span>`).join('')} <span class="small">${esc(s.themes_raw)}</span></div>
-    <div class="row small"><b>主要来源 / 阶段：</b>${esc(s.src_stage)}</div>
-    <div><button class="btn" data-sall="${s.id}">查看该情境全部帖子 →</button></div></div>`;}).join('')}</div>
-  <div class="card md" style="margin-top:14px">${md(D.sections.sit_cross||'')}</div>`;
-  el.querySelectorAll('[data-sx]').forEach(b => b.onclick = () => openExplorer({themes:[b.dataset.sx]}));
-  el.querySelectorAll('[data-sall]').forEach(b => b.onclick = () => openExplorer({themes:S.find(s=>s.id===b.dataset.sall).themes}));
+  const M = globalThis.__SIT_MATRIX__;
+  if (!M || !(M.situations || []).length) {
+    el.innerHTML = `<div class="card"><p class="hint">未加载 sit-matrix.js</p></div>`;
+    return;
+  }
+  const themes = M.themes || [];
+  const stages = M.stages || [];
+  const all = M.situations || [];
+  if (SIT.theme && !themes.some(t => t.id === SIT.theme)) SIT.theme = null;
+  if (SIT.stage && !stages.some(s => s.id === SIT.stage)) SIT.stage = null;
+
+  const list = all.filter(s =>
+    (!SIT.theme || s.themeId === SIT.theme) &&
+    (!SIT.stage || s.stageId === SIT.stage)
+  );
+
+  const themeChips = themes.map(t =>
+    `<button type="button" class="sit-chip${SIT.theme === t.id ? ' on' : ''}" data-sit-theme="${t.id}">${esc(t.name)}</button>`
+  ).join('');
+  const stageChips = stages.map(s =>
+    `<button type="button" class="sit-chip stage${SIT.stage === s.id ? ' on' : ''}" data-sit-stage="${s.id}" title="${esc(s.blurb || '')}"><b>${esc(s.name)}</b>${s.blurb ? `<i>${esc(s.blurb)}</i>` : ''}</button>`
+  ).join('');
+
+  const byTheme = themes
+    .filter(t => !SIT.theme || t.id === SIT.theme)
+    .map(t => {
+      const items = list.filter(s => s.themeId === t.id);
+      if (!items.length) return '';
+      const cards = items.map(s => {
+        const ths = (s.themes || []).filter(c => TH[c]);
+        const n = GP.filter(p => p.th && ths.includes(p.th)).length;
+        return `<div class="scard" id="sit-${s.id}">
+          <h4><span class="sid">${esc(s.id)}</span>${esc(s.name)}</h4>
+          <div class="sit-dims">
+            <span class="sit-dim theme">${esc(s.themeName)}</span>
+            <span class="sit-dim stage">${esc(s.stageName)}${s.stageBlurb ? ` · ${esc(s.stageBlurb)}` : ''}</span>
+          </div>
+          <div class="nums"><span>当前筛选 <b>${fmt(n)}</b></span></div>
+          <div class="row"><b>触发时刻：</b>${esc(s.trigger)}</div>
+          <div class="row"><b>他/她需要什么：</b>${esc(s.needs)}</div>
+          <div class="row"><b>对应主题：</b>${ths.map(c => `<span class="badge th" data-sx="${c}" title="${esc(TH[c].full)}">${esc(tlabel(c))}</span>`).join('')}</div>
+          <div><button class="btn" data-sall="${s.id}">查看相关帖子 →</button></div>
+        </div>`;
+      }).join('');
+      return `<section class="sit-theme-block">
+        <h3 class="sit-theme-h">${esc(t.name)}<span class="small"> · ${items.length} 个情境</span></h3>
+        <div class="scards">${cards}</div>
+      </section>`;
+    }).join('');
+
+  el.innerHTML = `<div class="card sit-intro">
+    <h3 style="margin:0 0 8px">「此刻的我」情境（按成长全景矩阵重划）</h3>
+    <p class="hint" style="margin:0">卡片格式与原先一致（触发时刻 / 需要什么 / 对应主题）。划分维度改为：<b>6 个成长主题</b> × <b>7 个需要回答的问题</b>（起点接受 → 过渡重估）。不是把旧 14 条映射上去，而是按新维度重新生成情境。</p>
+  </div>
+  <div class="sit-filters">
+    <div class="sit-filter-row">
+      <span class="sit-filter-label">成长主题</span>
+      <div class="sit-chips">
+        <button type="button" class="sit-chip${SIT.theme ? '' : ' on'}" data-sit-theme="">全部</button>
+        ${themeChips}
+      </div>
+    </div>
+    <div class="sit-filter-row">
+      <span class="sit-filter-label">走到哪一步</span>
+      <div class="sit-chips stages">
+        <button type="button" class="sit-chip${SIT.stage ? '' : ' on'}" data-sit-stage="">全部</button>
+        ${stageChips}
+      </div>
+    </div>
+  </div>
+  <p class="small sit-count">当前 <b>${list.length}</b> 个情境（共 ${all.length}）</p>
+  ${byTheme || '<p class="hint">没有匹配情境，请放宽筛选。</p>'}
+  <div class="card md" style="margin-top:14px">
+    <p><b>横切提醒：</b>情绪吞没可作为各情境的调节变量；若心理问题本身是主诉（确诊、休学/复学、自伤风险），走安全转介。</p>
+  </div>`;
+
+  el.querySelectorAll('[data-sit-theme]').forEach(b => {
+    b.onclick = () => { SIT.theme = b.dataset.sitTheme || null; renderSit(); };
+  });
+  el.querySelectorAll('[data-sit-stage]').forEach(b => {
+    b.onclick = () => { SIT.stage = b.dataset.sitStage || null; renderSit(); };
+  });
+  el.querySelectorAll('[data-sx]').forEach(b => b.onclick = () => openExplorer({ themes: [b.dataset.sx] }));
+  el.querySelectorAll('[data-sall]').forEach(b => {
+    b.onclick = () => {
+      const s = all.find(x => x.id === b.dataset.sall);
+      if (s) openExplorer({ themes: s.themes || [] });
+    };
+  });
 }
 
 
@@ -1327,7 +1427,6 @@ function renderFramework(){
     };
   });
 }
-
 
 const RENDER = {
   overview: renderOverview,

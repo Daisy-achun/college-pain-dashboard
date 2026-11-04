@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>我的 AI 使用报告 · Cursor 对话实录</title>
+<style>
+  :root {
+    --ink: #1a1c1a;
+    --muted: #5c635c;
+    --line: #d8ddd6;
+    --paper: #f7f5f0;
+    --card: #ffffff;
+    --accent: #2f5d4a;
+    --accent-soft: #e4efe9;
+    --warn: #8a5a2b;
+    --warn-soft: #f3eadc;
+    --chip: #eef1ec;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Source Han Sans SC", system-ui, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, #e8efe9 0%, transparent 55%),
+      radial-gradient(900px 500px at 100% 0%, #f0e8dc 0%, transparent 50%),
+      var(--paper);
+    line-height: 1.65;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 48px 24px 80px; }
+  header.hero {
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 36px;
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-family: "Songti SC", "Noto Serif SC", "Source Han Serif SC", Georgia, serif;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 14px;
+    letter-spacing: 0.02em;
+  }
+  .lede { color: var(--muted); font-size: 15px; max-width: 62ch; margin: 0; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-top: 20px;
+  }
+  .chip {
+    background: var(--chip);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  h2 {
+    font-family: "Songti SC", "Noto Serif SC", Georgia, serif;
+    font-size: 22px;
+    margin: 42px 0 14px;
+    padding-top: 8px;
+  }
+  h3 { font-size: 16px; margin: 22px 0 8px; }
+  p, li { font-size: 14.5px; }
+  .note {
+    background: var(--warn-soft);
+    border-left: 3px solid var(--warn);
+    padding: 12px 14px;
+    font-size: 13px;
+    color: #5a4324;
+    margin: 16px 0 28px;
+  }
+  .rank {
+    display: grid;
+    gap: 12px;
+    margin: 18px 0 8px;
+  }
+  .rank-item {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 48px 1fr auto;
+    gap: 14px;
+    align-items: start;
+  }
+  .num {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: grid; place-items: center;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .rank-item h3 { margin: 0 0 4px; font-size: 16px; }
+  .rank-item p { margin: 0; color: var(--muted); font-size: 13px; }
+  .freq {
+    font-size: 12px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .case {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin: 10px 0;
+  }
+  .case .label {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .kv { margin: 6px 0; }
+  .kv strong { color: var(--ink); font-weight: 600; }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  .tag.yes { background: #e5f2ea; color: #1f6b45; }
+  .tag.partial { background: #f3eadc; color: #8a5a2b; }
+  .tag.no { background: #f3e4e4; color: #8a3b3b; }
+  .tag.unk { background: #ececec; color: #666; }
+  .timeline {
+    border-left: 2px solid var(--line);
+    margin: 12px 0 8px 8px;
+    padding-left: 18px;
+  }
+  .timeline .item { margin: 0 0 18px; position: relative; }
+  .timeline .item::before {
+    content: "";
+    width: 10px; height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: absolute;
+    left: -24px; top: 6px;
+  }
+  .timeline .when { font-size: 12px; color: var(--accent); font-weight: 600; }
+  ul.clean { padding-left: 1.15em; margin: 8px 0; }
+  ul.clean li { margin: 4px 0; }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 720px) {
+    .rank-item { grid-template-columns: 40px 1fr; }
+    .freq { grid-column: 2; justify-self: start; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+  footer {
+    margin-top: 48px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 22px 0 8px;
+  }
+  @media (max-width: 720px) {
+    .stat-row { grid-template-columns: 1fr 1fr; }
+  }
+  .stat {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .stat .v {
+    font-family: "Songti SC", "Noto Serif SC", Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.1;
+  }
+  .stat .k { font-size: 12px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">Personal AI Usage Report</div>
+    <h1>我的 AI 使用报告</h1>
+    <p class="lede">
+      基于本机可检索到的 Cursor Agent 对话实录整理，不猜测、不补全未记录意图。
+      「是否被采用」仅根据后续对话中的明确指令与迭代行为推断；无法判断处标注「需要本人补充」。
+    </p>
+    <div class="meta">
+      <span class="chip">数据源：本地 agent-transcripts + SearchConversations 索引</span>
+      <span class="chip">覆盖区间：2026-05-08 → 2026-11-03</span>
+      <span class="chip">有效会话约 242 段</span>
+      <span class="chip">生成日期：2026-11-04</span>
+    </div>
+  </header>
+
+  <div class="note">
+    <strong>方法说明：</strong>共扫描约 260 份 transcript（已排除 subagent）。
+    按用户首轮与后续提问关键词做多标签归类；「频率排序」以多标签命中次数为主（同一会话可归属多类）。
+    高峰月为 2026-08（约 108 段会话），与多场黑客松/产品冲刺时间重合。
+  </div>
+
+  <div class="stat-row">
+    <div class="stat"><div class="v">242</div><div class="k">含用户提问的会话</div></div>
+    <div class="stat"><div class="v">108</div><div class="k">8 月会话峰值</div></div>
+    <div class="stat"><div class="v">7+</div><div class="k">可识别的持续项目线</div></div>
+    <div class="stat"><div class="v">5</div><div class="k">高频使用类型</div></div>
+  </div>
+
+  <!-- 1 -->
+  <h2>1. 最常用 AI 做的 5 类事情</h2>
+  <p>按多标签命中频率排序（括号内为约略会话命中数）：</p>
+  <div class="rank">
+    <div class="rank-item">
+      <div class="num">1</div>
+      <div>
+        <h3>产品从 0 到 1 开发与 UI 迭代</h3>
+        <p>网页/手机框 APP、按设计图还原、页面增删改、交互与架构重构。覆盖火种/VERSO、Skill 平台、MoonWave、知乎日报、小咪体重秤、PairRead 等。</p>
+      </div>
+      <span class="freq">约 137 次</span>
+    </div>
+    <div class="rank-item">
+      <div class="num">2</div>
+      <div>
+        <h3>GitHub / 部署 / 工程交付</h3>
+        <p>建仓、推送、协作者、README/仓库介绍、Vercel / CloudBase / 域名绑定、分支与 worktree。</p>
+      </div>
+      <span class="freq">约 90 次</span>
+    </div>
+    <div class="rank-item">
+      <div class="num">3</div>
+      <div>
+        <h3>视觉素材、配图与论文架构图</h3>
+        <p>按参考图生图/抠图、IP 形象、纸浮雕素材、顶会风格论文框架图；并沉淀为可复用 Skill。</p>
+      </div>
+      <span class="freq">约 79 次</span>
+    </div>
+    <div class="rank-item">
+      <div class="num">4</div>
+      <div>
+        <h3>Skill 制作、安装与工作流复用</h3>
+        <p>video-to-flipbook、配图 Skill、论文架构图 Skill、保研时间线 Skill、SkillHub 安装校园攻略等。</p>
+      </div>
+      <span class="freq">约 70 次</span>
+    </div>
+    <div class="rank-item">
+      <div class="num">5</div>
+      <div>
+        <h3>产品研究、需求梳理与对外文案</h3>
+        <p>痛点/场景框架、竞品研究报告、PRD/评委文档、简历项目经历、GitHub 自我介绍、体验群邀请文案等。常与「小白式讲解」交织。</p>
+      </div>
+      <span class="freq">研究≈43 · 文案≈33</span>
+    </div>
+  </div>
+  <p style="color:var(--muted);font-size:13px;">另有「教学讲解 / 计算机小白答疑」在约 68 段对话中出现，多作为上述任务的伴随模式，故不单独列为第 5 类「事情」，而在第 5 节角色定位中归纳。</p>
+
+  <!-- 2 -->
+  <h2>2. 每类真实案例</h2>
+
+  <h3>① 产品从 0 到 1 开发与 UI 迭代</h3>
+  <div class="case">
+    <span class="label">案例 A · MoonWave 月潮 APP（2026-08-27～09-05）</span>
+    <div class="kv"><strong>想完成：</strong>做潮汐/经期记录向的纸浮雕风格 APP；探索页七岛航行、正念/统计页统一视觉。</div>
+    <div class="kv"><strong>AI 帮了：</strong>按设计图与小红书参考实现 UI；生成纸浮雕素材；改交互（如去掉螃蟹）；同步 GitHub / Vercel。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag yes">部分明确采用</span>
+      对话中有「认可！！！好好看！！」「一比一还原设计图」等继续指令；也有「螃蟹效果不是很好 → 去掉吧」的否决。最终上线与留存情况：需要本人补充。
+    </div>
+  </div>
+  <div class="case">
+    <span class="label">案例 B · 小咪体重秤 Web APP（2026-10-15～10-19）</span>
+    <div class="kv"><strong>想完成：</strong>为 AI 原生硬件做 iPhone 框网页 APP（首页宠物、测量、陪伴 Agent、发现、部署上线）。</div>
+    <div class="kv"><strong>AI 帮了：</strong>按设计图搭页面与架构；接大模型陪伴；生图/抠图；部署域名；周末后要求「复盘 build 时间线与完整对话」并上传私密仓库。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag yes">高密度迭代并部署</span>
+      多次要求同步改本地与 <code>aidol.dufengyun.xyz</code>；并专门做开发复盘文档。硬件蓝牙「为什么没连上」在记录中未闭环：需要本人补充最终是否连上。
+    </div>
+  </div>
+
+  <h3>② GitHub / 部署 / 工程交付</h3>
+  <div class="case">
+    <span class="label">案例 A · VERSO 多平台部署（2026-10-04 密集）</span>
+    <div class="kv"><strong>想完成：</strong>把 <code>chx0506/VERSO</code> 部署到 Vercel / CloudBase 并拿到可访问链接。</div>
+    <div class="kv"><strong>AI 帮了：</strong>定位本地路径、走 CLI 部署、切换方案（CloudBase ↔ Vercel）。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag partial">过程采用，结果需核对</span>
+      同一目标触发多段会话；公开 URL 是否稳定可用：需要本人补充。
+    </div>
+  </div>
+  <div class="case">
+    <span class="label">案例 B · GitHub 主页与仓库介绍（2026-10-19～10-24）</span>
+    <div class="kv"><strong>想完成：</strong>学习他人 README 写法，写自己的详细自我介绍；给缺少介绍的仓库补描述。</div>
+    <div class="kv"><strong>AI 帮了：</strong>起草/改写介绍；按反馈纠正身份误写（「我不是华一明」）、代表作列表（专注羊、VERSO、小咪、MoonWave）等。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag yes">持续改到符合个人设定</span>
+      多轮纠正后仍要求继续优化短描述，推断已写入仓库；线上最终版：需要本人补充。
+    </div>
+  </div>
+
+  <h3>③ 视觉素材、配图与论文架构图</h3>
+  <div class="case">
+    <span class="label">案例 A · 论文方法框架图 + Daisy-cv-arch-skill（2026-09-15；2026-11-02～11-03）</span>
+    <div class="kv"><strong>想完成：</strong>把 Band-Routing / 深度伪造取证方法画成顶会风格流程图；沉淀为可复用 Skill；用本地 PPT / computer use 辅助。</div>
+    <div class="kv"><strong>AI 帮了：</strong>按 Skill 与参考图迭代绘图；改排版/公式/仓库命名；按要求去掉「蒸馏顶会」表述；上传私密仓库。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag partial">Skill 与仓库方向采用，单张成图多次不满意</span>
+      记录中有「感觉没生图直接编辑反而更好」「有图之后效果还变差」「跟参考风格完全不一样」；同时有「不错不错，单独上传 skill」。最终论文是否采用某一版图：需要本人补充。
+    </div>
+  </div>
+  <div class="case">
+    <span class="label">案例 B · AI 调研报告配图 Skill（2026-10-26）</span>
+    <div class="kv"><strong>想完成：</strong>学习报告配图 zip 的风格，做成以后文档配图可用的 Skill，并上传 GitHub。</div>
+    <div class="kv"><strong>AI 帮了：</strong>解压提炼风格 token；创建 Skill；按要求上传。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag yes">明确要求上传 GitHub</span>
+      实际后续在多少篇文档中调用：需要本人补充。
+    </div>
+  </div>
+
+  <h3>④ Skill 制作、安装与工作流复用</h3>
+  <div class="case">
+    <span class="label">案例 A · video-to-flipbook / 多视频融合（2026-07 中下旬起）</span>
+    <div class="kv"><strong>想完成：</strong>确认能否使用本地 <code>video-to-flipbook.skill</code>；视频→可交互网页；多视频融合 Skill 化。</div>
+    <div class="kv"><strong>AI 帮了：</strong>解包说明、跑链路、优化 Skill 文档与模板；后续火种/VERSO 产品反复调用该能力。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag yes">成为后续产品主链路</span>
+      多段对话将 flipbook 能力接到 APP 知识卡片、弹幕与行动清单。
+    </div>
+  </div>
+  <div class="case">
+    <span class="label">案例 B · SkillHub 校园 Skill（2026-09-14）</span>
+    <div class="kv"><strong>想完成：</strong>按 SkillHub 文档安装北科 RPG、清华攻略，并实际问答（逛北科、食堂等）。</div>
+    <div class="kv"><strong>AI 帮了：</strong>安装到 Cursor skills 目录并触发使用。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag yes">当场安装并试用</span>
+      是否长期保留：需要本人补充。
+    </div>
+  </div>
+
+  <h3>⑤ 产品研究、需求梳理与对外文案</h3>
+  <div class="case">
+    <span class="label">案例 A · 大学生场景/痛点框架与看板（2026-10-08～10-16）</span>
+    <div class="kv"><strong>想完成：</strong>穷尽大一～大四场景节点；区分场景与动作；优化痛点研究 HTML；再推现象→原因→解法文档。</div>
+    <div class="kv"><strong>AI 帮了：</strong>对话梳理框架；用 design-taste 改看板；编辑飞书文档副本。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag partial">框架与页面持续迭代</span>
+      后续「大学生 wowland」世界观头脑风暴沿用六主题：说明研究方向被延续。最终对外版本：需要本人补充。
+    </div>
+  </div>
+  <div class="case">
+    <span class="label">案例 B · 简历项目经历与社区介绍润色（2026-10-04）</span>
+    <div class="kv"><strong>想完成：</strong>把 VERSO 整理成简历项目（STAR、对齐已有格式）；润色 StartBuild 创业经历表述。</div>
+    <div class="kv"><strong>AI 帮了：</strong>结构化改写 ≤300 字；按实习经历版式模仿。</div>
+    <div class="kv"><strong>是否采用：</strong>
+      <span class="tag unk">需要本人补充</span>
+      记录中未见「已贴进简历终稿」的确认句。
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <h2>3. 围绕同一目标的持续性使用</h2>
+  <p>以下项目线在多日、多会话中反复出现，且每次问题类型可从记录中还原：</p>
+
+  <div class="timeline">
+    <div class="item">
+      <div class="when">火种 / VERSO · 约 2026-07-18 → 2026-10-04 · 高频</div>
+      <p>视频→理解→行动清单；flipbook / 弹幕 / 海报易拉宝 / 打印机清单；Dou 前端适配；反复部署。</p>
+      <ul class="clean">
+        <li>早期：Skill 可用性、demo 房间、知识卡片进 APP</li>
+        <li>中期：UI 方法论、多视频融合 Skill、北京/武汉内容页</li>
+        <li>后期：GitHub 权属显示、Vercel/CloudBase 上线、简历包装</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="when">Skill 平台 / growth-fork · 约 2026-08-12 → 08-24 · 约 31 段相关会话</div>
+      <p>宠物陪学、日程→Skill 推荐、学校专区、抖音信息流入口、评委产品文档、部署。</p>
+      <ul class="clean">
+        <li>从「克隆仓库优化网页」到产品方案纠偏（日程入口优先于 Skill 市集）</li>
+        <li>大量页面改版 + Git 协作推送</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="when">MoonWave · 约 2026-08-27 → 09-05 · 约 24 段会话</div>
+      <p>经期/潮汐产品：视觉统一、探索航海动画、文案拉新、README、访问量咨询。</p>
+    </div>
+    <div class="item">
+      <div class="when">知乎「知识日报」黑客松 nav · 约 2026-09-13 → 09-14 · 短时极高频</div>
+      <p>导航重构、报纸首页、日历、发现兴趣卡、刘看山 IP/地图、架构重构、加协作者推送。</p>
+    </div>
+    <div class="item">
+      <div class="when">小咪 AI 体重秤 · 约 2026-10-15 → 10-19 · 周末冲刺</div>
+      <p>材料清单与伪需求讨论 → 硬件形态方案 → 全套 APP → Agent 陪伴 → 部署域名 → 全流程复盘入库。</p>
+    </div>
+    <div class="item">
+      <div class="when">深度伪造 / Veritas 科研线 · 2026-09～11 断续</div>
+      <p>论文架构图、实验脚手架与数据集、SFT 代码精读（「计算机小白带读」）、主方法 v2.0 框架图 Skill 打磨。</p>
+    </div>
+    <div class="item">
+      <div class="when">大学生成长世界研究 · 约 2026-10-08 → 10-16</div>
+      <p>场景穷尽、痛点看板美化、现象-原因-解法文档、wowland 六大陆构想与示意。</p>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <h2>4. 主要帮助、未解决问题与中途停下的迹象</h2>
+  <div class="two-col">
+    <div class="case">
+      <span class="label">主要帮助（有记录支撑）</span>
+      <ul class="clean">
+        <li>把模糊产品直觉快速落成可点的网页/APP 原型</li>
+        <li>按参考图做视觉与素材，缩短设计实现鸿沟</li>
+        <li>代劳 GitHub / 部署 / 域名等交付琐事</li>
+        <li>把一次性流程固化成 Skill，便于下一场活动复用</li>
+        <li>用通俗语言解释后端、并发、代码阅读路径</li>
+        <li>竞赛/实习向的文档、介绍、复盘沉淀</li>
+      </ul>
+    </div>
+    <div class="case">
+      <span class="label">记录中反复未闭环的问题</span>
+      <ul class="clean">
+        <li>严格「顶会论文流程图」质感：多轮仍觉风格单一/排版叠字</li>
+        <li>硬件侧：蓝牙连接、秤数据帧等待（「为什么没连上」）</li>
+        <li>能力边界：本地 PPT / Codex computer use 期望与实际不一致</li>
+        <li>云端预览 vs 本机打开：portfolio「打不开/空白」</li>
+        <li>科研代码体量大时「看不懂」的学习摩擦</li>
+        <li>生图式猫咪与用户上传真猫「差别很大」类一致性问题</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>可能中途放下的原因（仅基于记录可观察的迹象，非心理推断）</h3>
+  <ul class="clean">
+    <li><strong>活动节奏切换：</strong>火种 → Skill 平台 → MoonWave → 知乎 → 小咪 → 大学生研究，时间线呈「一场冲刺接一场」，后一项目开始后前一项目会话显著变少——更像赛程切换，是否「放弃」需要本人补充。</li>
+    <li><strong>明确否决后搁置：</strong>如 MoonWave 螃蟹交互「效果不是很好，之后有需要再加上」——属于有意识砍功能。</li>
+    <li><strong>质量门槛未过线：</strong>论文图多次「不行啊 / 效果还变差」后继续打磨 Skill，说明未轻易接受当前输出；是否最终换工具手动画：需要本人补充。</li>
+    <li><strong>环境与权限摩擦：</strong>Vercel token 失效、本机/云端预览不一致、蓝牙权限等导致同一目标拆成很多短会话，可能拖慢收尾。</li>
+    <li><strong>单会话起势未见续聊：</strong>如 PairRead 双语阅读 PRD→网页原型、Swift 改 iOS 等——后续在索引中变少；是否已在其他工具继续：需要本人补充。</li>
+  </ul>
+
+  <!-- 5 -->
+  <h2>5. AI 对你的角色与定位</h2>
+  <div class="case">
+    <p>综合使用习惯，Cursor AI 在你这边更像：</p>
+    <ul class="clean">
+      <li><strong>黑客松 / 周末冲刺的全栈执行搭档</strong>——从 PRD、UI、素材到部署一条龙，默认「你定方向，它落地」。 </li>
+      <li><strong>带审美标准的实现工</strong>——频繁「参考图片一比一还原」「缺素材自己生成」「用 design-taste」；你负责品味裁判，它负责赶工。</li>
+      <li><strong>工作流沉淀器（Skill 工程师）</strong>——做完一件事就要求封装成 Skill / 上传仓库，下一次少从零开始。</li>
+      <li><strong>交付与运维助理</strong>——GitHub 介绍、协作者、Vercel/域名、复盘文档，偏「收尾官」。</li>
+      <li><strong>耐心的技术翻译</strong>——在 Veritas/SFT、Vercel 并发等话题上明确要求「计算机小白能听懂」。</li>
+      <li><strong>不是：</strong>完全自主的科研实验主导者（你仍要不断纠正方法图与代码理解路径）；也不是可靠的硬件现场操作员（蓝牙/本机外设类任务摩擦大）。</li>
+    </ul>
+    <p style="margin-top:12px;color:var(--muted);font-size:13px;">
+      一句话：你把 AI 定位成「有审美约束的产品实现与交付副驾驶」，自己保留选题、品味否决权和对外叙事；当任务跨出软件界面、进入硬件现场或极高标准学术可视化时，副驾驶位会明显抖。
+    </p>
+  </div>
+
+  <h2>附录 · 数据边界</h2>
+  <ul class="clean">
+    <li>仅包含本机 Cursor projects 下可见的 agent-transcripts，以及 SearchConversations 能检索到的本地/部分云缓存会话。</li>
+    <li>未包含：其他产品（ChatGPT / Claude 网页等）对话、未落盘的口头讨论、纯 Composer 短编辑若未进 transcript。</li>
+    <li>「采用」≠「商业成功」；本报告不评价产品市场结果。</li>
+    <li>对话中曾出现的密钥类内容已刻意不写入本报告。</li>
+  </ul>
+
+  <footer>
+    文件位置：大学生成长世界 / 我的AI使用报告.html<br />
+    如需改成飞书文档或补充「需要本人补充」条目，可直接在对话里标注答案后让我更新一版。
+  </footer>
+</div>
+</body>
+</html>

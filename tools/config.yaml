@@ -1,0 +1,60 @@
+# 大学生吐槽爬虫工具 —— 配置文件
+# 修改后直接 python3 main.py 即可生效
+
+global:
+  delay_min: 1        # 每次请求前随机延迟下限（秒）
+  delay_max: 3        # 随机延迟上限（秒）
+  retries: 3          # 网络/5xx 失败重试次数（403/412/429/验证码不触发重试，立即停手）
+
+platforms:
+  bilibili:
+    enabled: true
+    keywords:
+      - 大学生吐槽
+      - 大学牲
+      - 考研崩溃
+      - 秋招
+      - 选专业后悔
+    target_count: 1500      # 该平台本次目标采集条数（按评论计）
+    search_pages_per_keyword: 5   # 每个关键词最多翻几页搜索结果
+    comment_pages_per_video: 3    # 每个视频最多翻几页评论（每页约20条）
+    mode: 3                 # 评论排序：3=热度排序（吐槽聚类更需要高赞评论），2=时间排序
+
+  douban:
+    enabled: true
+    # 小组填「数字ID」。获取方法：手机/电脑浏览器打开小组主页，
+    # 把 URL 里 https://www.douban.com/group/ 后面的数字复制过来，如 groups: [123456]
+    # 例：「985废物引进计划」小组主页链接发给 Coco，她会帮你填
+    groups:
+      - 985废物引进计划   # ← 占位：必须换成数字ID，否则本平台会跳过并提示
+    target_count: 600       # 该平台本次目标采集条数（按帖子计）
+    hot_comments_per_topic: 5   # 每帖附带几条热评
+    list_pages_per_group: 24    # 每小组最多翻几页讨论列表（每页25帖，24页=600帖）
+
+  tieba:
+    enabled: true
+    bars: ["转专业吧", "专升本吧", "考研吧", "挂科吧", "大学吧", "大一吧", "专科吧", "二本吧", "双非吧", "考公吧", "保研吧", "大学生心理吧", "毕业生吧"]
+    target_count: 2500      # 该平台本次目标采集条数（按帖子计）
+    # 贴吧 PC 列表页当前经常返回百度安全验证空壳；WAP 端是安全默认入口。
+    # 如需人工验证 PC 端可用性，才显式改为 false；不会绕过验证或自动切换。
+    wap: true                # true=公开 WAP 轻量端；false=PC 端（可能软拦截）
+    delay_min: 1
+    delay_max: 3
+    retries: 3
+
+  zhihu:
+    # 公共采集模式保持关闭。只有获得明确授权、且接受登录态数据范围时，
+    # 才提供 cookie 并把 enabled 改成 true；不绕过登录或验证码。
+    # 方式1（推荐）：终端执行 export ZHIHU_COOKIE="z_c0=你的值; _xsrf=你的值"
+    #   cookie 获取：电脑浏览器登录知乎一次（首次需手动过一次验证码），
+    #   然后 F12 → Application → Cookies → 复制 z_c0 等字段
+    # 方式2：直接写在 config 里（不推荐，cookie 会留在文件里）
+    #   cookies: {"z_c0": "你的值"}
+    enabled: false
+    # 问题ID：打开知乎问题页，把 URL 里 https://www.zhihu.com/question/ 后面的数字填进来
+    # 推荐搜这几个问题（每个2分钟）：
+    #   "大学里最让你痛苦的事情是什么" / "当代大学生最焦虑的是什么" / "你在大学最后悔的事是什么"
+    question_ids: []
+    target_count: 1500      # 本平台抓取上限（按回答计）
+    per_question: 30        # 每个问题最多抓多少条回答
+    sort_by: default        # default / updated / vote（回答排序）

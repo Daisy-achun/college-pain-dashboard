@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/university-complaints/output_schema.json",
+  "title": "大学生吐槽采集输出行",
+  "description": "tool/data/raw/*.jsonl 中每一行的固定字段。仅允许公开页面或公开 API 内容。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "平台",
+    "来源",
+    "标题",
+    "正文",
+    "发布时间",
+    "点赞数",
+    "评论数",
+    "原链接",
+    "抓取时间"
+  ],
+  "properties": {
+    "平台": {
+      "type": "string",
+      "description": "来源平台显示名，例如 B站、豆瓣、贴吧。",
+      "minLength": 1
+    },
+    "来源": {
+      "type": "string",
+      "description": "来源上下文，例如搜索关键词、贴吧名或豆瓣小组名。",
+      "minLength": 1
+    },
+    "标题": {
+      "type": "string"
+    },
+    "正文": {
+      "type": "string",
+      "description": "公开可见的帖子、回答或评论正文；不得写入登录后私密内容。"
+    },
+    "发布时间": {
+      "type": "string",
+      "description": "站点公开时间；无法解析时允许为空字符串。"
+    },
+    "点赞数": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "评论数": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "原链接": {
+      "type": "string",
+      "format": "uri",
+      "minLength": 1
+    },
+    "抓取时间": {
+      "type": "string",
+      "description": "采集器写入该行时的本地时间。"
+    }
+  }
+}
